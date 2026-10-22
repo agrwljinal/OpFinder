@@ -1,7 +1,8 @@
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
-const BASE = `http://localhost:${process.env.PORT || 5000}/api`;
+// Using 127.0.0.1 to avoid Windows Node.js IPv6 resolution issues
+const BASE = `http://127.0.0.1:${process.env.PORT || 5000}/api`;
 let token, userId, oppId, itemId;
 let passed = 0, failed = 0;
 
@@ -71,5 +72,10 @@ function check(name, ok, detail = '') {
   r = await call('GET', '/profile/00000000-0000-0000-0000-000000000000');
   check("Other user's profile -> 403", r.status === 403, r.status);
 
+  // Test Member 2's Discovery Endpoint
+  r = await call('GET', '/discover');
+  check('GET /discover -> 200', r.status === 200 && r.data?.success === true, JSON.stringify(r.data));
+
   console.log(`\n${passed} passed, ${failed} failed`);
+  process.exit(0);
 })();
